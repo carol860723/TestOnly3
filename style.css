@@ -59,3 +59,39 @@ body {
 
 #wrongList { padding-left: 18px; }
 #wrongList li { margin:10px 0; line-height:1.6; }
+/* === 公布答案後的狀態樣式（加在檔案最後） === */
+
+/* 已鎖定（公布答案之後） */
+.option-btn.locked {
+  cursor: not-allowed;
+  opacity: 0.88;                 /* 輕微降低亮度，表示不可再點 */
+}
+
+/* 我選到的那個（描邊提示） */
+.option-btn.chosen {
+  outline: 2px solid rgba(255,255,255,0.55);
+  outline-offset: 2px;
+}
+
+/* 正確選項：綠色系高亮（僅針對按鈕） */
+.option-btn.correct {
+  background: rgba(0,255,157,0.18);
+  box-shadow: 0 0 12px rgba(0,255,157,0.35);
+}
+
+/* 錯誤選項：紅色系高亮（僅針對按鈕） */
+.option-btn.incorrect {
+  background: rgba(255,79,79,0.18);
+  box-shadow: 0 0 12px rgba(255,79,79,0.35);
+}
+
+/* 已鎖定時，停用 hover 放大效果（避免誤導） */
+.option-btn.locked:hover {
+  transform: none;
+}
+
+/* 可選：鍵盤操作時的可見聚焦（輔助易用性） */
+.option-btn:focus-visible {
+  outline: 2px dashed rgba(255,255,255,0.6);
+  outline-offset: 3px;
+}
