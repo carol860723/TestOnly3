@@ -299,36 +299,59 @@ function reshuffleNewSet() {
   loadQuestion();
 }
 /***********************
- * 錯題本功能（全域）
+ * 錯題本：加入（去重） + 寫入 LocalStorage
  ************************/
 function addWrong(q) {
-  if (!q || !q.q || !Array.isArray(q.options)) return; // 保險：結構不完整就不寫入
+  if (!q || !q.q || !Array.isArray(q.options)) return; // 保險
   const id = getQid(q);
-  const set = new Set((wrongQuestions || []).map(x => getQid(x)));
+  // 重新從 LS 讀一次，避免跨 Tab 或前次操作不同步
+  let list;
+  try { list = JSON.parse(localStorage.getItem(wKey()) || '[]'); }
+  catch { list = []; }
+
+  const set = new Set(list.map(x => getQid(x)));
   if (!set.has(id)) {
-    wrongQuestions.push(q);
+    list.push(q);
     try {
-      localStorage.setItem(wKey(), JSON.stringify(wrongQuestions));
+      localStorage.setItem(wKey(), JSON.stringify(list));
     } catch (e) {
       console.error('寫入錯題本失敗：', e);
     }
   }
+  // 同步回記憶體陣列
+  wrongQuestions = list;
 }
+/***********************
+ * 錯題本：移除單題（我學會了）
+ ************************/
+function removeWrongById(qid) {
+  // 以 QID 移除，並寫回 LocalStorage
+  let list;
+  try { list = JSON.parse(localStorage.getItem(wKey()) || '[]'); }
+  catch { list = []; }
 
+  const newList = list.filter(q => getQid(q) !== qid);
+  try { localStorage.setItem(wKey(), JSON.stringify(newList)); }
+  catch (e) { console.error('更新錯題本失敗：', e); }
+
+  wrongQuestions = newList;
+  renderWrongList(); // 重新渲染 UI
+}
 function showWrong() {
   showOnly('wrongBox');
+  try { wrongQuestions = JSON.parse(localStorage.getItem(wKey()) || '[]'); }
+  catch { wrongQuestions = []; }
+  renderWrongList();
+}
 
-  // 讀取最新錯題（若其他分頁異動也能同步）
-  try {
-    wrongQuestions = JSON.parse(localStorage.getItem(wKey()) || '[]');
-  } catch {
-    wrongQuestions = [];
-  }
-
+/***********************
+ * 錯題本：渲染列表 + 綁定「我學會了」
+ ************************/
+function renderWrongList() {
   const list = document.getElementById('wrongList');
   list.innerHTML = '';
 
-  if (!wrongQuestions.length) {
+  if (!Array.isArray(wrongQuestions) || wrongQuestions.length === 0) {
     const li = document.createElement('li');
     li.textContent = '目前沒有錯題 🎉';
     list.appendChild(li);
@@ -336,12 +359,39 @@ function showWrong() {
   }
 
   wrongQuestions.forEach((w, i) => {
+    const qid = getQid(w);
     const li = document.createElement('li');
-    li.innerHTML = `【${i + 1}】${w.q}<br>正解：${w.options[w.answer]}<br>詳解：${w.explain || '無'}`;
+    li.className = 'wrong-item';
+
+    li.innerHTML = `
+      <div class="wrong-q">【${i + 1}】${w.q}</div>
+      <div class="wrong-a">正解：${w.options[w.answer]}</div>
+      <div class="wrong-ex">詳解：${w.explain || '無'}</div>
+      <div class="wrong-actions">
+        <button class="btn-secondary btn-sm" onclick="reviewThis('${qid}')">重做這題</button>
+        <button class="btn-success btn-sm" onclick="removeWrongById('${qid}')">我學會了</button>
+      </div>
+    `;
     list.appendChild(li);
   });
 }
 
+/* （可選）從錯題本直接重做該題 */
+function reviewThis(qid) {
+  const target = wrongQuestions.find(w => getQid(w) === qid);
+  if (!target) return alert('找不到這題，請重新整理錯題本');
+  // 用單題組成練習集合
+  questions = [target];
+  userChoices   = new Array(1).fill(undefined);
+  shownFeedback = new Array(1).fill(false);
+  index = 0; score = 0;
+  document.getElementById('score').textContent = score;
+  document.getElementById('total').textContent = questions.length;
+  document.getElementById('progress').style.width = '0%';
+  const fb = document.getElementById('feedback'); if (fb) { fb.textContent=''; fb.className=''; }
+  showOnly('quiz');
+  loadQuestion();
+}
 function backToQuiz() {
   showOnly('quiz');
 }
