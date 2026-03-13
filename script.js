@@ -530,3 +530,22 @@ function importQuestions(event) {
 
   reader.readAsText(file);
 }
+/***********************
+ * 匯出題庫 JSON
+ ************************/
+function exportQuestions() {
+  if (!currentKey) {
+    alert('請先輸入題庫代碼');
+    return;
+  }
+
+  const data = localStorage.getItem(qKey()) || '[]';
+  const blob = new Blob([data], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `questions_${currentKey}.json`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 300);
+
+  alert(`已匯出題庫：questions_${currentKey}.json`);
+}
