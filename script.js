@@ -149,15 +149,19 @@ function checkAnswer(choice) {
 function nextQuestion() {
   index++;
   if (index >= questions.length) {
-    document.getElementById('progress').style.width = '100%';
-    setTimeout(() => {
-      alert(`練習結束！得分：${score}/${questions.length}`);
-      shuffle(questions); index = 0; score = 0;
-      document.getElementById('score').textContent = score;
-      loadQuestion();
-    }, 80);
-    return;
-  }
+  document.getElementById('progress').style.width = '100%';
+  setTimeout(() => {
+    alert(`練習結束！得分：${score}/${questions.length}`);
+    // 重新依題數設定，從完整題庫抽一批新題
+    applyQuestionCount(false);     // ← 這行會重抽題目集合
+    shuffle(questions);            // 再洗牌一次
+    index = 0;
+    score = 0;
+    document.getElementById('score').textContent = score;
+    loadQuestion();
+  }, 80);
+  return;
+}
   loadQuestion();
 }
 
