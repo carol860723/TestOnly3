@@ -7,6 +7,9 @@ let questions = [];       // 本次練習題目
 let wrongQuestions = [];  // 錯題本
 let index = 0, score = 0;
 
+let userChoices = [];   // 記錄每題使用者選了哪個選項（index），沒答過=undefined
+let shownFeedback = []; // 記錄每題是否已顯示回饋（true/false），用來決定要不要鎖選項+顯示詳解
+
 /* LocalStorage key helpers */
 const bankKeyStore = 'quiz_bank_key';
 const qKey = () => `myQuestions_${currentKey}`;
