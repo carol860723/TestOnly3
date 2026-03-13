@@ -484,3 +484,49 @@ function reshuffleNewSet() {
 
   loadQuestion();
 }
+/***********************
+ * 匯入題庫 JSON
+ ************************/
+function importQuestions(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const text = e.target.result;
+      const parsed = JSON.parse(text);
+
+      if (!Array.isArray(parsed)) {
+        alert('JSON 格式錯誤：最外層需為陣列');
+        return;
+      }
+
+      // 基本欄位檢查
+      for (let i = 0; i < parsed.length; i++) {
+        const t = parsed[i];
+        if (!t.q || !Array.isArray(t.options) || typeof t.answer !== 'number') {
+          alert(`第 ${i+1} 題格式錯誤：需有 q / options[] / answer`);
+          return;
+        }
+      }
+
+      // 寫入 LocalStorage
+      localStorage.setItem(qKey(), JSON.stringify(parsed));
+
+      // 清錯題 (不然會殘留到以前版本的題目)
+      localStorage.setItem(wKey(), JSON.stringify([]));
+      wrongQuestions = [];
+
+      alert('題庫匯入完成！可開始練習');
+      fullQuestions = parsed;
+      startQuiz();
+
+    } catch (err) {
+      console.error(err);
+      alert('JSON 解析失敗，請確認格式正確。');
+    }
+  };
+
+  reader.readAsText(file);
+}
