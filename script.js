@@ -188,6 +188,10 @@ function nextQuestion() {
       applyQuestionCount(false);      // 重抽題目集合（會依下拉的題數）
       shuffle(questions);             // 再洗牌一次
 
+      // 重置紀錄
+      userChoices   = new Array(questions.length).fill(undefined);
+      shownFeedback = new Array(questions.length).fill(false);
+
       // 歸零狀態
       index = 0;
       score = 0;
