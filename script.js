@@ -149,22 +149,50 @@ function checkAnswer(choice) {
 function nextQuestion() {
   index++;
   if (index >= questions.length) {
-  document.getElementById('progress').style.width = '100%';
-  setTimeout(() => {
-    alert(`練習結束！得分：${score}/${questions.length}`);
-    // 重新依題數設定，從完整題庫抽一批新題
-    applyQuestionCount(false);     // ← 這行會重抽題目集合
-    shuffle(questions);            // 再洗牌一次
-    index = 0;
-    score = 0;
-    document.getElementById('score').textContent = score;
-    loadQuestion();
-  }, 80);
-  return;
-}
+    document.getElementById('progress').style.width = '100%';
+    setTimeout(() => {
+      alert(`練習結束！得分：${score}/${questions.length}`);
+
+      // 重新依題數設定，從完整題庫抽一批新題
+      applyQuestionCount(false);      // 重抽題目集合（會依下拉的題數）
+      shuffle(questions);             // 再洗牌一次
+
+      // 歸零狀態
+      index = 0;
+      score = 0;
+      document.getElementById('score').textContent = score;
+
+      // （可選）若 applyQuestionCount 沒有幫你更新 #total，就開這行
+      // document.getElementById('total').textContent = questions.length;
+
+      // 進度條歸零、清空回饋
+      document.getElementById('progress').style.width = '0%';
+      const fb = document.getElementById('feedback');
+      if (fb) { fb.textContent = ''; fb.className = ''; }
+
+      loadQuestion();
+    }, 80);
+    return;
+  }
   loadQuestion();
 }
 
+function reshuffleNewSet() {
+  applyQuestionCount(false);  // 依目前題數設定重抽
+  shuffle(questions);
+  index = 0;
+  score = 0;
+  document.getElementById('score').textContent = score;
+
+  // （可選）若 applyQuestionCount 沒有幫你更新 #total，就開這行
+  // document.getElementById('total').textContent = questions.length;
+
+  document.getElementById('progress').style.width = '0%';
+  const fb = document.getElementById('feedback');
+  if (fb) { fb.textContent = ''; fb.className = ''; }
+
+  loadQuestion();
+}
 /* 錯題本 */
 function addWrong(q) {
   const id = getQid(q);
