@@ -9,20 +9,27 @@ body {
 
 /* ===== 容器（玻璃霧面） ===== */
 .glass-container {
-  width: 90%;
-  max-width: 760px;
-  margin: 60px auto;
+  width: 92%;
+  max-width: 980px;
+  margin: 40px auto 80px;
   padding: 28px;
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(12px);
   box-shadow: 0 0 22px rgba(255,255,255,0.12);
 }
-
 .fade { animation: fadeIn 0.6s ease; }
 @keyframes fadeIn { from {opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
 
 h1 { margin-top: 0; }
+.mt-8 { margin-top: 8px; }
+.mt-12 { margin-top: 12px; }
+.wrap { flex-wrap: wrap; }
+.spacer { flex: 1 1 auto; }
+
+/* ===== 直列/並排 ===== */
+.inline-row { display: flex; align-items: center; gap: 8px; }
+.hidden { display: none; }
 
 /* ===== 玻璃輸入元件 ===== */
 .input {
@@ -36,6 +43,7 @@ h1 { margin-top: 0; }
   margin: 8px 0 12px;
   outline: none;
 }
+.input.small { width: 120px; }
 .input::placeholder { color: #ddd; }
 
 /* 代碼顯示 */
@@ -51,51 +59,45 @@ h1 { margin-top: 0; }
 /* ===== 登入提示 ===== */
 .hint { opacity: 0.85; }
 
-/* ===== 選題數框 ===== */
-.select-box {
-  margin: 12px 0 16px;
-  background: rgba(255,255,255,0.12);
+/* ===== 工具列 Panel ===== */
+.toolbox {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(280px, 1fr));
+  gap: 14px;
+  margin: 10px 0 18px;
+}
+.panel {
+  background: rgba(255,255,255,0.08);
   padding: 12px;
   border-radius: 12px;
-  backdrop-filter: blur(6px);
-  box-shadow: 0 0 10px rgba(255,255,255,0.12);
+  box-shadow: 0 0 10px rgba(255,255,255,0.10);
 }
-.select-box select {
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: none;
-  background: rgba(255,255,255,0.25);
-  color: #000;
-}
+.panel-title { font-weight: 700; margin-bottom: 8px; }
 
-/* ===== 進度條 ===== */
-.progress-bar {
-  width: 100%;
-  height: 12px;
-  background: rgba(255,255,255,0.15);
-  border-radius: 10px;
-  overflow: hidden;
+/* 標籤區 */
+.tags { display: flex; gap: 8px; flex-wrap: wrap; }
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: rgba(255,255,255,0.14);
+  border-radius: 999px;
+  cursor: pointer;
+  user-select: none;
 }
-.progress {
-  height: 100%;
-  width: 0%;
-  background: #00ffe1;
-  transition: width 0.4s ease;
-  box-shadow: 0 0 10px #00ffe1;
-}
+.tag input { margin: 0; accent-color: #00ffe1; }
 
 /* ===== 按鈕 ===== */
 .btn, .btn-warning, .btn-danger, .btn-secondary {
-  width: 100%;
-  padding: 12px;
+  width: auto;
+  padding: 10px 14px;
   border: none;
-  margin-top: 10px;
   border-radius: 10px;
-  font-size: 18px;
+  font-size: 16px;
   cursor: pointer;
   transition: 0.2s;
 }
-
 .btn {
   background: #2980ff;
   color: #fff;
@@ -114,18 +116,38 @@ h1 { margin-top: 0; }
   box-shadow: 0 0 12px rgba(255,79,79,0.6);
 }
 .btn-secondary {
-  width: auto;
-  padding: 6px 10px;
   background: rgba(255,255,255,0.18);
   color: #fff;
   border-radius: 8px;
   font-size: 14px;
-  margin-top: 0;
-  margin-left: 6px;
 }
 .btn-secondary:hover { transform: translateY(-1px); }
 
-/* ===== 選項按鈕 ===== */
+/* ===== 進度條 / 計時 ===== */
+.progress-bar {
+  width: 100%;
+  height: 12px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.progress {
+  height: 100%;
+  width: 0%;
+  background: #00ffe1;
+  transition: width 0.4s ease;
+  box-shadow: 0 0 10px #00ffe1;
+}
+.score { margin: 8px 0 8px; }
+.timer {
+  min-width: 96px;
+  padding: 6px 10px;
+  background: rgba(255,255,255,0.14);
+  border-radius: 10px;
+  text-align: center;
+}
+
+/* ===== 選項 ===== */
 #options { display: grid; gap: 10px; }
 .option-btn {
   width: 100%;
@@ -150,3 +172,46 @@ h1 { margin-top: 0; }
 /* ===== 錯題本 ===== */
 #wrongList { padding-left: 18px; }
 #wrongList li { margin: 10px 0; line-height: 1.6; }
+
+/* ===== Modal：儀表板 ===== */
+.modal {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  align-items: center; justify-content: center;
+  z-index: 9999;
+}
+.modal .modal-body {
+  width: min(900px, 92vw);
+  max-height: 86vh;
+  overflow: auto;
+  background: rgba(255,255,255,0.08);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  padding: 16px;
+  box-shadow: 0 0 20px rgba(255,255,255,0.18);
+}
+
+.dash-grid {
+  display: grid; gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+.card {
+  background: rgba(255,255,255,0.12);
+  border-radius: 12px;
+  padding: 12px;
+}
+.card-title { font-weight: 700; margin-bottom: 6px; }
+.bar {
+  height: 12px; border-radius: 8px; overflow: hidden;
+  background: rgba(255,255,255,0.18);
+}
+.bar > div {
+  height: 100%;
+  background: #00ffe1;
+  box-shadow: 0 0 10px #00ffe1;
+  transition: width .4s ease;
+}
+
+/* 調整 setup 的匯入/匯出區域間距 */
+.mt-12 .inline-row { margin-top: 6px; }
