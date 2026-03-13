@@ -31,14 +31,7 @@
 ]'></textarea>
       <button class="btn" onclick="saveQuestions()">儲存題庫</button>
     </div>
-    
-<!-- 匯出 / 匯入題庫 -->
-<div class="import-export">
-  <button class="btn-secondary" onclick="exportQuestions()">匯出題庫 JSON</button>
-  <button class="btn-secondary" onclick="document.getElementById('importFile').click()">匯入題庫 JSON</button>
-  <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importQuestions(event)">
-</div>
-    
+     
     <!-- 🧪 測驗主畫面 -->
     <div id="quiz" style="display:none;">
       <div class="key-line">目前代碼：<span id="keyLabel_quiz" class="key-chip"></span>　
