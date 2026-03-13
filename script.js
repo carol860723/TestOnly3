@@ -268,3 +268,33 @@ function nextQuestion() {
   }
   loadQuestion();
 }
+/***********************
+ *  小工具（請放在檔案最末端；全域）
+ ************************/
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
+/* 重新抽題（給「重新抽題」按鈕用） */
+function reshuffleNewSet() {
+  // 依目前題數設定，從完整題庫重抽
+  applyQuestionCount(false);
+  shuffle(questions);
+
+  // 重置作答紀錄與狀態
+  userChoices   = new Array(questions.length).fill(undefined);
+  shownFeedback = new Array(questions.length).fill(false);
+
+  index = 0;
+  score = 0;
+  document.getElementById('score').textContent = score;
+  document.getElementById('progress').style.width = '0%';
+
+  const fb = document.getElementById('feedback');
+  if (fb) { fb.textContent = ''; fb.className = ''; }
+
+  loadQuestion();
+}
