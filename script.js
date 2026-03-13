@@ -129,6 +129,7 @@ function applyQuestionCount(fromUser = false) {
   // 畫面同步
   if (fromUser) {
     index = 0; score = 0;
+
     // 當使用者改題數 → 重置作答紀錄
     userChoices   = new Array(questions.length).fill(undefined);
     shownFeedback = new Array(questions.length).fill(false);
@@ -178,7 +179,7 @@ function loadQuestion() {
       fb.className = 'incorrect';
     }
 
-    // 鎖定 + 還原樣式（若你在 CSS 有為 correct/incorrect/chosen/locked 設樣式就會生效）
+    // 鎖定 + 還原樣式
     btns.forEach((b, i) => {
       b.disabled = true;
       b.classList.remove('correct','incorrect','chosen','locked');
@@ -268,8 +269,9 @@ function nextQuestion() {
   }
   loadQuestion();
 }
+
 /***********************
- *  小工具（請放在檔案最末端；全域）
+ *  小工具：洗牌
  ************************/
 function shuffle(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
@@ -277,18 +279,22 @@ function shuffle(arr) {
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
 }
+
 /***********************
  *  小工具：題目 QID 產生器（用於去重 / 移除）
  ************************/
 function getQid(q) {
   // 用「題幹 + 選項串」當作穩定簽章
   const sig = String(q?.q || '') + '||' + (Array.isArray(q?.options) ? q.options.join('|') : '');
-  // 簡易 hash（非密碼學）；與你之前版本一致
+  // 簡易 hash（非密碼學）
   let h = 0;
   for (let i = 0; i < sig.length; i++) h = (h * 31 + sig.charCodeAt(i)) | 0;
   return (h >>> 0).toString(16);
 }
-/* 集中管理錯題本：讀 / 寫（與記憶體同步） */
+
+/***********************
+ * 集中管理錯題本：讀 / 寫（與記憶體同步）
+ ************************/
 function getWrongList() {
   try {
     const list = JSON.parse(localStorage.getItem(wKey()) || '[]');
@@ -296,17 +302,16 @@ function getWrongList() {
   } catch { return []; }
 }
 function setWrongList(list) {
-  try {
-    localStorage.setItem(wKey(), JSON.stringify(list));
-  } catch (e) {
-    console.error('寫入錯題本失敗：', e);
-  }
+  try { localStorage.setItem(wKey(), JSON.stringify(list)); }
+  catch (e) { console.error('寫入錯題本失敗：', e); }
   wrongQuestions = list;  // 同步回記憶體
 }
-/* 重新抽題（給「重新抽題」按鈕用） */
+
+/***********************
+ * 重新抽題（給「重新抽題」按鈕用）
+ ************************/
 function reshuffleNewSet() {
-  // 依目前題數設定，從完整題庫重抽
-  applyQuestionCount(false);
+  applyQuestionCount(false); // 依目前題數設定，從完整題庫重抽
   shuffle(questions);
 
   // 重置作答紀錄與狀態
@@ -323,8 +328,10 @@ function reshuffleNewSet() {
 
   loadQuestion();
 }
+
 /***********************
-/* 錯題本：加入（去重）＋落地 */
+ * 錯題本：加入（去重）＋落地
+ ************************/
 function addWrong(q) {
   if (!q || !q.q || !Array.isArray(q.options)) return;
 
@@ -343,32 +350,25 @@ function addWrong(q) {
     list.push(base);
     setWrongList(list);         // ← 寫入 LS + 同步記憶體
   }
+}
+
 /***********************
  * 錯題本：移除單題（我學會了）
  ************************/
 function removeWrongById(qid) {
-  // 以 QID 移除，並寫回 LocalStorage
-  let list;
-  try { list = JSON.parse(localStorage.getItem(wKey()) || '[]'); }
-  catch { list = []; }
-
-  const newList = list.filter(q => getQid(q) !== qid);
-  try { localStorage.setItem(wKey(), JSON.stringify(newList)); }
-  catch (e) { console.error('更新錯題本失敗：', e); }
-
-  wrongQuestions = newList;
+  const newList = getWrongList().filter(q => getQid(q) !== qid);
+  setWrongList(newList);
   renderWrongList(); // 重新渲染 UI
-}
-function showWrong() {
-  showOnly('wrongBox');
-  try { wrongQuestions = JSON.parse(localStorage.getItem(wKey()) || '[]'); }
-  catch { wrongQuestions = []; }
-  renderWrongList();
 }
 
 /***********************
- * 錯題本：渲染列表 + 綁定「我學會了」
+ * 顯示錯題本 + 渲染列表
  ************************/
+function showWrong() {
+  showOnly('wrongBox');
+  wrongQuestions = getWrongList();
+  renderWrongList();
+}
 function renderWrongList() {
   const list = document.getElementById('wrongList');
   list.innerHTML = '';
@@ -398,17 +398,17 @@ function renderWrongList() {
   });
 }
 
-/* （可選）從錯題本直接重做該題 */
+/* 從錯題本直接重做該題（單題練習） */
 function reviewThis(qid) {
-  const target = wrongQuestions.find(w => getQid(w) === qid);
+  const target = getWrongList().find(w => getQid(w) === qid);
   if (!target) return alert('找不到這題，請重新整理錯題本');
-  // 用單題組成練習集合
+
   questions = [target];
-  userChoices   = new Array(1).fill(undefined);
-  shownFeedback = new Array(1).fill(false);
+  userChoices   = [undefined];
+  shownFeedback = [false];
   index = 0; score = 0;
-  document.getElementById('score').textContent = score;
-  document.getElementById('total').textContent = questions.length;
+  document.getElementById('total').textContent = 1;
+  document.getElementById('score').textContent = 0;
   document.getElementById('progress').style.width = '0%';
   const fb = document.getElementById('feedback'); if (fb) { fb.textContent=''; fb.className=''; }
   showOnly('quiz');
@@ -422,10 +422,7 @@ function backToQuiz() {
  * 重置（只清除此代碼）
  ************************/
 function resetAll() {
-  if (!currentKey) {
-    alert('尚未登入題庫代碼');
-    return;
-  }
+  if (!currentKey) { alert('尚未登入題庫代碼'); return; }
   if (!confirm(`確定清除「${currentKey}」代碼下的題庫與錯題？`)) return;
 
   localStorage.removeItem(qKey());
@@ -440,34 +437,3 @@ function resetAll() {
   alert('已清除，請貼上新的題庫 JSON！');
   showOnly('setup');
 }
-
-/***********************
- * 小工具：洗牌、重新抽題（全域）
- ************************/
-function shuffle(arr) {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-}
-
-function reshuffleNewSet() {
-  applyQuestionCount(false);   // 以 fullQuestions 為母體重抽
-  shuffle(questions);
-
-  // 重置作答紀錄
-  userChoices   = new Array(questions.length).fill(undefined);
-  shownFeedback = new Array(questions.length).fill(false);
-
-  // UI 歸零
-  index = 0;
-  score = 0;
-  document.getElementById('score').textContent = score;
-  document.getElementById('progress').style.width = '0%';
-
-  const fb = document.getElementById('feedback');
-  if (fb) { fb.textContent = ''; fb.className = ''; }
-
-  loadQuestion();
-}
-
