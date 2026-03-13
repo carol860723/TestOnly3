@@ -288,6 +288,21 @@ function getQid(q) {
   for (let i = 0; i < sig.length; i++) h = (h * 31 + sig.charCodeAt(i)) | 0;
   return (h >>> 0).toString(16);
 }
+/* 集中管理錯題本：讀 / 寫（與記憶體同步） */
+function getWrongList() {
+  try {
+    const list = JSON.parse(localStorage.getItem(wKey()) || '[]');
+    return Array.isArray(list) ? list : [];
+  } catch { return []; }
+}
+function setWrongList(list) {
+  try {
+    localStorage.setItem(wKey(), JSON.stringify(list));
+  } catch (e) {
+    console.error('寫入錯題本失敗：', e);
+  }
+  wrongQuestions = list;  // 同步回記憶體
+}
 /* 重新抽題（給「重新抽題」按鈕用） */
 function reshuffleNewSet() {
   // 依目前題數設定，從完整題庫重抽
@@ -309,15 +324,26 @@ function reshuffleNewSet() {
   loadQuestion();
 }
 /***********************
- * 錯題本：加入（去重） + 寫入 LocalStorage
- ************************/
+/* 錯題本：加入（去重）＋落地 */
 function addWrong(q) {
-  if (!q || !q.q || !Array.isArray(q.options)) return; // 保險
-  const id = getQid(q);
-  // 重新從 LS 讀一次，避免跨 Tab 或前次操作不同步
-  let list;
-  try { list = JSON.parse(localStorage.getItem(wKey()) || '[]'); }
-  catch { list = []; }
+  if (!q || !q.q || !Array.isArray(q.options)) return;
+
+  // 只存需要的欄位，避免奇怪屬性/循環物件
+  const base = {
+    q: String(q.q),
+    options: [...q.options].map(String),
+    answer: Number(q.answer),
+    explain: q.explain ?? ''
+  };
+
+  const qid = getQid(base);
+  const list = getWrongList();
+  const has = list.some(item => getQid(item) === qid);
+  if (!has) {
+    list.push(base);
+    setWrongList(list);         // ← 寫入 LS + 同步記憶體
+  }
+}
 
   const set = new Set(list.map(x => getQid(x)));
   if (!set.has(id)) {
