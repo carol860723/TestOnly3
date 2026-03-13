@@ -255,3 +255,16 @@ function nextQuestion() {
       // 歸零狀態
       index = 0;
       score = 0;
+      document.getElementById('score').textContent = score;
+
+      // 清 UI
+      document.getElementById('progress').style.width = '0%';
+      const fb = document.getElementById('feedback'); 
+      if (fb) { fb.textContent = ''; fb.className = ''; }
+
+      loadQuestion();
+    }, 80);
+    return;
+  }
+  loadQuestion();
+}
