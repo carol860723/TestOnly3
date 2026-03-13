@@ -1,6 +1,8 @@
 /***********************
  *  代碼分庫 + 狀態
  ************************/
+let userChoices = [];   // 每題使用者選了哪個選項（index），沒答過 = undefined
+let shownFeedback = []; // 每題是否已顯示回饋（true/false）
 let currentKey = null;
 let fullQuestions = [];   // 此代碼完整題庫
 let questions = [];       // 本次練習題目
@@ -90,6 +92,8 @@ function startQuiz() {
   showOnly('quiz');
   applyQuestionCount(false); // 依下拉抽題
   shuffle(questions);
+  userChoices   = new Array(questions.length).fill(undefined);
+  shownFeedback = new Array(questions.length).fill(false);
   index = 0; score = 0;
   document.getElementById('total').textContent = questions.length;
   document.getElementById('score').textContent = score;
@@ -151,7 +155,21 @@ function checkAnswer(choice) {
     fb.className = 'incorrect';
     addWrong(q);
   }
-  document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+
+// ✦ 鎖本題所有選項，避免改答案
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach(b => b.disabled = true);
+
+  // （可選）把「當時選的那個選項」做個描框，回看時也清楚
+  if (btns[choice]) btns[choice].style.outline = '2px solid rgba(255,255,255,0.5)';
+}
+
+} else {
+    // 尚未作答 → 清空回饋、確保可作答
+    fb.textContent = '';
+    fb.className  = '';
+    document.querySelectorAll('.option-btn').forEach(b => b.disabled = false);
+  }
 }
 
 function prevQuestion() {
