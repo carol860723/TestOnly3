@@ -95,3 +95,14 @@ body {
   outline: 2px dashed rgba(255,255,255,0.6);
   outline-offset: 3px;
 }
+/* 錯題本樣式微調 */
+.wrong-item { padding: 10px 8px; background: rgba(255,255,255,0.08); border-radius: 10px; }
+.wrong-item + .wrong-item { margin-top: 10px; }
+.wrong-q { font-weight: 700; margin-bottom: 6px; }
+.wrong-a, .wrong-ex { opacity: 0.95; }
+.wrong-actions { margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* 小按鈕 */
+.btn-sm { padding: 6px 10px; font-size: 14px; border-radius: 8px; }
+.btn-success { background: #00c78a; color: #000; box-shadow: 0 0 10px rgba(0,199,138,0.4); border: none; cursor: pointer; }
+.btn-success:hover { filter: brightness(1.05); transform: translateY(-1px); }
