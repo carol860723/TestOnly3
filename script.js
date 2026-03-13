@@ -329,37 +329,6 @@ function reshuffleNewSet() {
   loadQuestion();
 }
 
-/***********************
- * 錯題本：加入（去重）＋落地
- ************************/
-function addWrong(q) {
-  if (!q || !q.q || !Array.isArray(q.options)) return;
-
-  // 只存需要的欄位，避免奇怪屬性/循環物件
-  const base = {
-    q: String(q.q),
-    options: [...q.options].map(String),
-    answer: Number(q.answer),
-    explain: q.explain ?? ''
-  };
-
-  const qid = getQid(base);
-  const list = getWrongList();
-  const has = list.some(item => getQid(item) === qid);
-  if (!has) {
-    list.push(base);
-    setWrongList(list);         // ← 寫入 LS + 同步記憶體
-  }
-}
-
-/***********************
- * 錯題本：移除單題（我學會了）
- ************************/
-function removeWrongById(qid) {
-  const newList = getWrongList().filter(q => getQid(q) !== qid);
-  setWrongList(newList);
-  renderWrongList(); // 重新渲染 UI
-}
 
 /***********************
  * 顯示錯題本 + 渲染列表
