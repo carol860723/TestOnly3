@@ -149,6 +149,12 @@ function checkAnswer(choice) {
   }
   document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
 }
+
+function prevQuestion() {
+  if (index <= 0) return;        // 已經是第一題就不動
+  index--;
+  loadQuestion();                // 重新渲染上一題（會根據紀錄決定是否禁用選項/顯示詳解）
+}
 function nextQuestion() {
   index++;
   if (index >= questions.length) {
@@ -172,7 +178,10 @@ function nextQuestion() {
       document.getElementById('progress').style.width = '0%';
       const fb = document.getElementById('feedback');
       if (fb) { fb.textContent = ''; fb.className = ''; }
-
+      
+      //重製作達紀錄
+      userChoices = new Array(questions.length).fill(undefined);
+      shownFeedback = new Array(questions.length).fill(false);
       loadQuestion();
     }, 80);
     return;
@@ -194,6 +203,10 @@ function reshuffleNewSet() {
   const fb = document.getElementById('feedback');
   if (fb) { fb.textContent = ''; fb.className = ''; }
 
+  //重製作達紀錄
+  userChoices = new Array(questions.length).fill(undefined);
+  shownFeedback = new Array(questions.length).fill(false);
+  
   loadQuestion();
 }
 /* 錯題本 */
