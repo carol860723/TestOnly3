@@ -4,26 +4,27 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>私人題庫測驗系統 - Glass</title>
-  style.css
+  <link rel="stylesheet" href="style.css?v=20260312" />
 </head>
 <body>
 
   <div class="glass-container fade">
     <h1>私人題庫測驗系統</h1>
 
-    <!-- 🔐 Glass 登入頁（輸入題庫代碼 = 分離不同題庫） -->
+    <!-- 🔐 登入（代碼分庫） -->
     <div id="login">
       <h2>🔐 題庫代碼登入</h2>
-      <p class="hint">輸入代碼即可載入對應題庫（例如：GHG / IPAS / LAW）。</p>
+      <p class="hint">輸入代碼即可載入對應題庫（如：GHG / IPAS / LAW）。</p>
       <input id="bankKey" type="password" class="input" placeholder="請輸入題庫代碼（例如 GHG）" />
       <button class="btn" onclick="setBankKey()">開始使用</button>
     </div>
 
-    <!-- 📘 題庫輸入（僅在此代碼下還沒有題庫時顯示） -->
+    <!-- 📘 題庫輸入（當前代碼沒有題庫時顯示） -->
     <div id="setup" style="display:none;">
       <div class="key-line">目前代碼：<span id="keyLabel_setup" class="key-chip"></span>　
         <button class="btn-secondary" onclick="switchBank()">切換代碼</button>
       </div>
+
       <h2>📘 請貼上題庫 JSON</h2>
       <textarea id="jsonInput" class="input" placeholder='[
   {"q":"題目？", "options":["A","B","C","D"], "answer":0, "explain":"解析"}
@@ -49,15 +50,9 @@
         </select>
       </div>
 
-      <!-- 進度條 -->
-      <div class="progress-bar">
-        <div id="progress" class="progress"></div>
-      </div>
-
-      <div class="score">
-        題目 <span id="current">0</span>/<span id="total">0</span>
-        ｜ 分數：<span id="score">0</span>
-      </div>
+      <!-- 進度與計分 -->
+      <div class="progress-bar"><div id="progress" class="progress"></div></div>
+      <div class="score">題目 <span id="current">0</span>/<span id="total">0</span> ｜ 分數：<span id="score">0</span></div>
 
       <h2 id="question" class="fade"></h2>
       <div id="options" class="fade"></div>
@@ -76,9 +71,8 @@
       <ul id="wrongList"></ul>
       <button class="btn" onclick="backToQuiz()">返回測驗</button>
     </div>
-
   </div>
 
-  script.js</script>
+  <script src="script.js?v=20260312"></script>
 </body>
 </html>
