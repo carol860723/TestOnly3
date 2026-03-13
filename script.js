@@ -308,6 +308,29 @@ function setWrongList(list) {
 }
 
 /***********************
+ * 加入錯題本（避免重複）
+ ************************/
+function addWrong(q) {
+  const qid = getQid(q);
+  const list = getWrongList();
+  
+  // 檢查是否已在錯題本中，避免重複
+  if (list.some(w => getQid(w) === qid)) {
+    return;  // 已存在，不重複加入
+  }
+  
+  list.push(q);
+  setWrongList(list);
+}
+
+function removeWrongById(qid) {
+  let list = getWrongList();
+  list = list.filter(w => getQid(w) !== qid);
+  setWrongList(list);
+  renderWrongList();
+}
+
+/***********************
  * 重新抽題（給「重新抽題」按鈕用）
  ************************/
 function reshuffleNewSet() {
@@ -384,7 +407,7 @@ function reviewThis(qid) {
   loadQuestion();
 }
 function backToQuiz() {
-  showOnly('quiz');
+  startQuiz();
 }
 
 /***********************
