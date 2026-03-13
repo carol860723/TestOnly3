@@ -343,20 +343,6 @@ function addWrong(q) {
     list.push(base);
     setWrongList(list);         // ← 寫入 LS + 同步記憶體
   }
-}
-
-  const set = new Set(list.map(x => getQid(x)));
-  if (!set.has(id)) {
-    list.push(q);
-    try {
-      localStorage.setItem(wKey(), JSON.stringify(list));
-    } catch (e) {
-      console.error('寫入錯題本失敗：', e);
-    }
-  }
-  // 同步回記憶體陣列
-  wrongQuestions = list;
-}
 /***********************
  * 錯題本：移除單題（我學會了）
  ************************/
