@@ -277,7 +277,17 @@ function shuffle(arr) {
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
 }
-
+/***********************
+ *  小工具：題目 QID 產生器（用於去重 / 移除）
+ ************************/
+function getQid(q) {
+  // 用「題幹 + 選項串」當作穩定簽章
+  const sig = String(q?.q || '') + '||' + (Array.isArray(q?.options) ? q.options.join('|') : '');
+  // 簡易 hash（非密碼學）；與你之前版本一致
+  let h = 0;
+  for (let i = 0; i < sig.length; i++) h = (h * 31 + sig.charCodeAt(i)) | 0;
+  return (h >>> 0).toString(16);
+}
 /* 重新抽題（給「重新抽題」按鈕用） */
 function reshuffleNewSet() {
   // 依目前題數設定，從完整題庫重抽
