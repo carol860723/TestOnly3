@@ -138,6 +138,10 @@ function checkAnswer(choice) {
   const q = questions[index];
   const fb = document.getElementById('feedback');
 
+// 1) 先記錄本題的選擇與「已顯示回饋」
+  if (typeof userChoices !== 'undefined')   userChoices[index]   = choice;
+  if (typeof shownFeedback !== 'undefined') shownFeedback[index] = true;
+
   if (choice === q.answer) {
     fb.innerHTML = `✔ 正確<br><br>詳解：${q.explain || '無'}`;
     fb.className = 'correct';
