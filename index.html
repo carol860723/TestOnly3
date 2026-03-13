@@ -14,67 +14,157 @@
     <!-- 🔐 Glass 登入頁（輸入題庫代碼 = 分離不同題庫） -->
     <div id="login">
       <h2>🔐 題庫代碼登入</h2>
-      <p class="hint">輸入代碼即可載入對應題庫（例如：GHG / IPAS / LAW）。</p>
+      <p class="hint">輸入代碼即可載入對應題庫（如：GHG / IPAS / LAW）。</p>
       <input id="bankKey" type="password" class="input" placeholder="請輸入題庫代碼（例如 GHG）" />
       <button class="btn" onclick="setBankKey()">開始使用</button>
     </div>
 
     <!-- 📘 題庫輸入（僅在此代碼下還沒有題庫時顯示） -->
     <div id="setup" style="display:none;">
-      <div class="key-line">目前代碼：<span id="keyLabel_setup" class="key-chip"></span>　
+      <div class="inline-row key-line">
+        <div>目前代碼：<span id="keyLabel_setup" class="key-chip"></span></div>
+        <div class="spacer"></div>
         <button class="btn-secondary" onclick="switchBank()">切換代碼</button>
       </div>
+
       <h2>📘 請貼上題庫 JSON</h2>
       <textarea id="jsonInput" class="input" placeholder='[
-  {"q":"題目？", "options":["A","B","C","D"], "answer":0, "explain":"解析"}
+  {"q":"題目？", "options":["A","B","C","D"], "answer":0, "explain":"解析", "tags":["SSP","UNFCCC"]}
 ]'></textarea>
       <button class="btn" onclick="saveQuestions()">儲存題庫</button>
+
+      <div class="mt-12">
+        <h3>⬇ 匯入 / 匯出</h3>
+        <div class="inline-row wrap">
+          <button class="btn" onclick="exportQuestions()">匯出本代碼題庫</button>
+          <button class="btn-warning" onclick="exportWrongs()">匯出本代碼錯題本</button>
+          <input id="importFileMerge" type="file" accept=".json" class="hidden" />
+          <input id="importFileReplace" type="file" accept=".json" class="hidden" />
+          <button class="btn" onclick="triggerImport(true)">匯入題庫（合併）</button>
+          <button class="btn-danger" onclick="triggerImport(false)">匯入題庫（覆蓋）</button>
+        </div>
+      </div>
     </div>
 
     <!-- 🧪 測驗主畫面 -->
     <div id="quiz" style="display:none;">
-      <div class="key-line">目前代碼：<span id="keyLabel_quiz" class="key-chip"></span>　
+      <div class="inline-row key-line">
+        <div>目前代碼：<span id="keyLabel_quiz" class="key-chip"></span></div>
+        <div class="spacer"></div>
         <button class="btn-secondary" onclick="switchBank()">切換代碼</button>
       </div>
 
-      <!-- 題數選擇 -->
-      <div class="select-box">
-        <label>選擇練習題數：</label>
-        <select id="questionCount" onchange="applyQuestionCount(true)">
-          <option value="all">全部題目</option>
-          <option value="10">10 題</option>
-          <option value="20">20 題</option>
-          <option value="30">30 題</option>
-          <option value="50">50 題</option>
-        </select>
+      <!-- 題庫工具列：篩選 / 模式 / 題數 / 計時 -->
+      <div class="toolbox">
+        <!-- 分類/標籤篩選 -->
+        <div class="panel">
+          <div class="panel-title">篩選分類 / 標籤</div>
+          <div id="tagFilters" class="tags"></div>
+          <div class="inline-row wrap">
+            <button class="btn-secondary" onclick="selectAllTags()">全選</button>
+            <button class="btn-secondary" onclick="clearAllTags()">清除</button>
+            <button class="btn" onclick="applyFilters()">套用篩選</button>
+          </div>
+        </div>
+
+        <!-- 練習 / 錯題模式 -->
+        <div class="panel">
+          <div class="panel-title">練習模式</div>
+          <div class="inline-row wrap">
+            <button class="btn" onclick="startPractice()">一般練習</button>
+            <button class="btn-warning" onclick="startWrongOnly()">只做錯題</button>
+            <button class="btn-warning" onclick="startWrongBoost()">錯題強化</button>
+          </div>
+        </div>
+
+        <!-- 題數選擇 + 模考 -->
+        <div class="panel">
+          <div class="panel-title">題數 / 模考</div>
+          <div class="inline-row wrap">
+            <label>練習題數：</label>
+            <select id="questionCount" onchange="applyQuestionCount(true)">
+              <option value="all">全部題目</option>
+              <option value="10">10 題</option>
+              <option value="20">20 題</option>
+              <option value="30">30 題</option>
+              <option value="50">50 題</option>
+            </select>
+          </div>
+          <div class="inline-row wrap mt-8">
+            <label>模考倒數（秒）：</label>
+            <input id="examSeconds" class="input small" type="number" value="1800" min="60" step="60" />
+            <button class="btn" onclick="startExamMode()">開始模考</button>
+            <div class="timer" id="timer">未開始</div>
+            <button class="btn-danger" onclick="submitExam(true)">交卷</button>
+          </div>
+        </div>
+
+        <!-- 匯入 / 匯出 -->
+        <div class="panel">
+          <div class="panel-title">匯入 / 匯出</div>
+          <div class="inline-row wrap">
+            <button class="btn" onclick="exportQuestions()">匯出題庫</button>
+            <button class="btn-warning" onclick="exportWrongs()">匯出錯題本</button>
+            <input id="importFileMerge2" type="file" accept=".json" class="hidden" />
+            <input id="importFileReplace2" type="file" accept=".json" class="hidden" />
+            <button class="btn" onclick="triggerImport(true, true)">匯入（合併）</button>
+            <button class="btn-danger" onclick="triggerImport(false, true)">匯入（覆蓋）</button>
+          </div>
+        </div>
+
+        <!-- 成績儀表板 -->
+        <div class="panel">
+          <div class="panel-title">學習統計</div>
+          <div class="inline-row wrap">
+            <button class="btn" onclick="openDashboard()">成績儀表板</button>
+            <button class="btn-danger" onclick="resetAll()">重置本代碼題庫＆資料</button>
+          </div>
+        </div>
       </div>
 
-      <!-- 進度條 -->
+      <!-- 進度條 / 計分 -->
       <div class="progress-bar">
         <div id="progress" class="progress"></div>
       </div>
-
       <div class="score">
         題目 <span id="current">0</span>/<span id="total">0</span>
         ｜ 分數：<span id="score">0</span>
       </div>
 
+      <!-- 題目 / 選項 -->
       <h2 id="question" class="fade"></h2>
       <div id="options" class="fade"></div>
 
+      <!-- 作答回饋（練習模式顯示；模考模式不立即顯示） -->
       <p id="feedback"></p>
 
       <button class="btn" onclick="nextQuestion()">下一題</button>
       <button class="btn-warning" onclick="showWrong()">查看錯題本</button>
-      <button class="btn-danger" onclick="resetAll()">重置本代碼題庫＆資料</button>
     </div>
 
     <!-- ❌ 錯題本 -->
     <div id="wrongBox" style="display:none;">
-      <div class="key-line">目前代碼：<span id="keyLabel_wrong" class="key-chip"></span></div>
+      <div class="inline-row key-line">
+        <div>目前代碼：<span id="keyLabel_wrong" class="key-chip"></span></div>
+        <div class="spacer"></div>
+        <button class="btn-secondary" onclick="backToQuiz()">返回測驗</button>
+      </div>
       <h2>❌ 錯題本</h2>
       <ul id="wrongList"></ul>
-      <button class="btn" onclick="backToQuiz()">返回測驗</button>
+    </div>
+
+    <!-- 📊 成績儀表板（彈出層） -->
+    <div id="dashboard" class="modal" aria-hidden="true">
+      <div class="modal-body">
+        <div class="inline-row">
+          <h2>📊 成績儀表板</h2>
+          <div class="spacer"></div>
+          <button class="btn-secondary" onclick="closeDashboard()">關閉</button>
+        </div>
+        <div id="dashSummary" class="dash-grid"></div>
+        <h3 class="mt-12">各分類正確率</h3>
+        <div id="dashByTag" class="dash-grid"></div>
+      </div>
     </div>
 
   </div>
