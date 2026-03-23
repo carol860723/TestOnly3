@@ -78,3 +78,82 @@
   <script src="script.js?v=20260312v13"></script>
 </body>
 </html>
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>題庫主題預覽</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="glass-container fade">
+    <header style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:12px;">
+      <h2 style="margin:0;">題目：CSS 盒模型</h2>
+      <button id="themeToggle" class="btn-secondary" aria-pressed="false" title="切換主題">🌓 主題</button>
+    </header>
+
+    <p class="hint">請選出控制元素「外距」的屬性：</p>
+    <div id="options">
+      <button class="option-btn">padding</button>
+      <button class="option-btn correct">margin（正確）</button>
+      <button class="option-btn">border</button>
+      <button class="option-btn incorrect">display（錯誤）</button>
+    </div>
+
+    <div class="result-detail" style="margin-top:16px;">
+      <strong>解析：</strong> margin 控制外距；padding 控制內距。
+    </div>
+
+    <div class="result-buttons" style="margin-top:16px;">
+      <button class="btn">下一題</button>
+      <button class="btn-secondary">加入收藏</button>
+    </div>
+  </div>
+
+  <script>
+    // 主題切換（含記憶）
+    (function () {
+      const html = document.documentElement;
+      const key = 'qb-theme'; // localStorage key
+      const btn = document.getElementById('themeToggle');
+
+      // 初始化：若用戶有選過，就讀取
+      const saved = localStorage.getItem(key);
+      if (saved === 'light') {
+        html.dataset.theme = 'light';
+        btn?.setAttribute('aria-pressed', 'true');
+        btn?.setAttribute('title', '切換為深灰主題');
+      } else if (saved === 'dark') {
+        // 深灰：你可以不設 data-theme 代表深灰；若想明確，改成 html.dataset.theme = 'dark' 並在 CSS 增加對應區塊
+        btn?.setAttribute('aria-pressed', 'false');
+        btn?.setAttribute('title', '切換為淺色主題');
+      } else {
+        // 跟隨系統偏好（第一次使用）
+        const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+        if (prefersLight) {
+          html.dataset.theme = 'light';
+          btn?.setAttribute('aria-pressed', 'true');
+          btn?.setAttribute('title', '切換為深灰主題');
+        }
+      }
+
+      // 點擊切換
+      btn?.addEventListener('click', () => {
+        const next = html.dataset.theme === 'light' ? 'dark' : 'light';
+        if (next === 'dark') {
+          delete html.dataset.theme;          // 預設視為深灰主題
+          localStorage.setItem(key, 'dark');
+          btn.setAttribute('aria-pressed', 'false');
+          btn.setAttribute('title', '切換為淺色主題');
+        } else {
+          html.dataset.theme = 'light';
+          localStorage.setItem(key, 'light');
+          btn.setAttribute('aria-pressed', 'true');
+          btn.setAttribute('title', '切換為深灰主題');
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
